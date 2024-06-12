@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import { collection, addDoc, query, onSnapshot, doc, deleteDoc, where } from "firebase/firestore";
-import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "./components/firebase";
 import './App.css';
 import Todo from './components/Todo';
+import Register from "./pages/Register";
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -62,33 +64,46 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>Real Time To-do App</h1>
-      {message && <p>{message}</p>}
-      {user ? (
-        <>
-          <button onClick={handleLogout}>Logout</button>
-          <form onSubmit={addTodo}>
-            <input 
-              value={input} 
-              onChange={(e) => setInput(e.target.value)} 
-              placeholder="Enter a to-do" 
-            />
-            <button type="submit">Add To-do</button>
-          </form>
-          <ul>
-            {todos.map((todo) => (
-              <Todo key={todo.id} todo={todo} onDelete={deleteTodo} />
-            ))}
-          </ul>
-        </>
-      ) : (
-        <>
-          <h2>Login</h2>
-          <button onClick={handleGoogleLogin}>Login with Google</button>
-        </>
-      )}
-    </div>
+    <Router>
+      <div className="App">
+        <h1>Real Time To-do App</h1>
+        {message && <p>{message}</p>}
+        <Routes>
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={
+            user ? (
+              <>
+                <button onClick={handleLogout}>Logout</button>
+                <form onSubmit={addTodo}>
+                  <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Enter a to-do"
+                  />
+                  <button type="submit">Add To-do</button>
+                </form>
+                <ul>
+                  {todos.map((todo) => (
+                    <Todo key={todo.id} todo={todo} onDelete={deleteTodo} />
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <>
+                <div className="googleLogin">
+                  <h2>Login with Google</h2>
+                  <button onClick={handleGoogleLogin}>Login with Google</button>
+                </div>
+                <div className="userLogin">
+                  <h2>Account Create</h2>
+                  <Link to="/register">Register</Link>
+                </div>
+              </>
+            )
+          } />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
